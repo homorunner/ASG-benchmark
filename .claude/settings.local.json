@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(cargo:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(./target/debug/boardgamebench.exe:*)"
     ],
     "deny": [],
     "ask": []

@@ -4,3 +4,10 @@ target/
 
 # vscode
 .vscode
+
+# database
+database/
+
+# output files
+benchmark_results.json
+

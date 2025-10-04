@@ -1,0 +1,20 @@
+{
+  "name": "Sample Chess Puzzles Collection",
+  "description": "A collection of sample chess puzzles for testing the BoardgameBench system",
+  "puzzles": [
+    {
+      "id": "chess_sample_01",
+      "game_type": "chess",
+      "description": "Example chess puzzle from https://lichess.org/yyznGmXs/black#34",
+      "goal": {"FindBestMove": null},
+      "game_states": [
+        "q5nr/1ppknQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 w - - 1 18",
+        "q2k2nr/1pp1nQpp/3pB3/1P2p3/4P3/B1PP1b2/6PP/5K2 w - - 3 19"
+      ],
+      "solutions": [
+        "Be6+",
+        "Qf8#"
+      ]
+    }
+  ]
+}

@@ -1,4 +1,28 @@
 [package]
-name = "board_game_puzzle_bench"
+name = "boardgamebench"
 version = "0.1.0"
 edition = "2024"
+authors = ["Your Name <email@example.com>"]
+description = "A benchmark for evaluating LLM performance on abstract board game puzzles"
+license = "MIT OR Apache-2.0"
+
+[lib]
+name = "boardgamebench"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+openai-api-rs = "0.1"
+clap = { version = "4.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bin]]
+name = "boardgamebench"
+path = "src/main.rs"
