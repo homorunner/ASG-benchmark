@@ -1,0 +1,4 @@
+[package]
+name = "board_game_puzzle_bench"
+version = "0.1.0"
+edition = "2024"
