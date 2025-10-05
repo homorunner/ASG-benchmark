@@ -7,4 +7,4 @@ pub mod puzzle;
 // Re-export commonly used types
 pub use evaluation::{BenchmarkResult, BenchmarkRunner, Solver};
 pub use game::{Game, GameError};
-pub use puzzle::{Puzzle, PuzzleCollection, PuzzleError, PuzzleGoal, PuzzleScore};
+pub use puzzle::{Puzzle, PuzzleCollection, PuzzleError, PuzzleScore};

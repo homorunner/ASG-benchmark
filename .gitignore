@@ -11,3 +11,5 @@ database/
 # output files
 benchmark_results.json
 
+# env
+.env*

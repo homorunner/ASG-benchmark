@@ -6,14 +6,12 @@
       "id": "chess_sample_01",
       "game_type": "chess",
       "description": "Example chess puzzle from https://lichess.org/yyznGmXs/black#34",
-      "goal": {"FindBestMove": null},
+      "goal": "当前局面下正在行棋的玩家有一步棋可以快速取胜。谜题保证答案是唯一的。请找到这一步棋，用国际象棋标准记谱法（Algebraic notation）表示。如果将军，需要添加+号；如果将死，需要添加#号。",
       "game_states": [
-        "q5nr/1ppknQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 w - - 1 18",
-        "q2k2nr/1pp1nQpp/3pB3/1P2p3/4P3/B1PP1b2/6PP/5K2 w - - 3 19"
+        "q5nr/1ppknQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 w - - 1 18"
       ],
       "solutions": [
-        "Be6+",
-        "Qf8#"
+        "Be6+"
       ]
     }
   ]

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::env;
 
-use crate::puzzle::{Puzzle, PuzzleCollection, PuzzleGoal, PuzzleScore};
+use crate::puzzle::{Puzzle, PuzzleCollection, PuzzleScore};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BenchmarkResult {
@@ -58,7 +58,7 @@ impl BenchmarkRunner {
             0.0
         };
 
-        // 计算游戏类型细分
+        // Calculate game type breakdown
         let mut game_type_scores: std::collections::HashMap<String, (usize, f64, f64)> =
             std::collections::HashMap::new();
         for score in &puzzle_scores {
@@ -139,23 +139,45 @@ impl Solver {
     }
 
     pub fn solve_puzzle(&self, puzzle: &Puzzle) -> Vec<String> {
-        let prompt = self.build_prompt(puzzle);
+        let mut results = Vec::new();
 
-        // Since we can't use async in the trait method, we'll use tokio runtime
-        let result = tokio::runtime::Runtime::new()
-            .expect("Failed to create tokio runtime")
-            .block_on(async { self.call_openai_api(&prompt).await });
+        for i in 0..puzzle.game_states.len() {
+            let prompt = self.build_prompt(puzzle, i);
 
-        match result {
-            Ok(response) => {
-                // Parse the response into individual moves
-                response.split(',').map(|s| s.trim().to_string()).collect()
-            }
-            Err(e) => {
-                eprintln!("Error calling OpenAI API: {}", e);
-                vec!["error".to_string()]
+            match tokio::runtime::Runtime::new()
+                .expect("Failed to create tokio runtime")
+                .block_on(async { self.call_openai_api(&prompt).await })
+            {
+                Ok(response) => {
+                    println!(
+                        "Puzzle {} state {}\nResponse: {}",
+                        puzzle.id, i, response
+                    );
+
+                    if let Some(answer_line) =
+                        response.lines().find(|line| line.starts_with("Answer:"))
+                    {
+                        let answer = answer_line["Answer:".len()..].trim().to_string();
+                        results.push(answer);
+                    } else {
+                        eprintln!(
+                            "No answer found in response for puzzle {} state {}",
+                            puzzle.id, i
+                        );
+                        results.push("".to_string());
+                    }
+                }
+                Err(e) => {
+                    eprintln!(
+                        "Error calling OpenAI API for puzzle {} state {}: {}",
+                        puzzle.id, i, e
+                    );
+                    results.push("".to_string());
+                }
             }
         }
+
+        results
     }
 }
 
@@ -164,11 +186,9 @@ impl Solver {
         let api_key = env::var("OPENAI_API_KEY")
             .map_err(|_| "OPENAI_API_KEY environment variable not set")?;
 
-        let base_url =
-            env::var("OPENAI_BASE_URL").unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+        let base_url = env::var("OPENAI_BASE_URL").unwrap();
 
-        let mut client = openai_api_rs::v1::api::Client::new(api_key);
-        client.api_endpoint = base_url;
+        let client = openai_api_rs::v1::api::Client::new_with_endpoint(base_url, api_key);
 
         Ok(Self {
             name: format!("OpenAI Solver ({})", model),
@@ -178,25 +198,15 @@ impl Solver {
         })
     }
 
-    fn build_prompt(&self, puzzle: &Puzzle) -> String {
+    fn build_prompt(&self, puzzle: &Puzzle, index: usize) -> String {
         format!(
-            "You are an expert at solving abstract board game puzzles. \n\
-            Game Type: {}\n\
-            Puzzle Goal: {}\n\
-            Puzzle Description: {}\n\
-            \n\
-            Current Game State(s):\n\
-            {}\n\
-            \n\
-            Please provide the best move(s) for this puzzle. Return only the move(s) in the format expected by the puzzle solution. \
-            If there are multiple steps, provide them in order separated by commas.",
+            "你是一个解谜专家。请逐步分析并解决以下谜题，在单独的一行中以 “Answer: ...” 的格式给出你的答案。
+谜题类型：{}
+谜题目标：{}
+棋盘状态：{}",
             puzzle.game_type,
-            match &puzzle.goal {
-                PuzzleGoal::FindBestMove => "Find the best move",
-                PuzzleGoal::Custom(s) => s,
-            },
-            puzzle.description,
-            puzzle.game_states.join("\n")
+            puzzle.goal,
+            puzzle.game_states[index]
         )
     }
 
@@ -209,8 +219,8 @@ impl Solver {
                 name: None,
                 function_call: None,
             }],
-            max_tokens: Some(500),
-            temperature: Some(0.1),
+            max_tokens: None,
+            temperature: Some(0.5),
             top_p: None,
             n: None,
             stream: None,

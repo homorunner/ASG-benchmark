@@ -24,6 +24,8 @@ fn main() -> Result<()> {
         puzzles.name
     );
 
+    dotenvy::dotenv().ok();
+
     let solver: Box<boardgamebench::evaluation::Solver> = {
         println!("Using Solver with model: {}", args.model);
         match Solver::new(args.model) {

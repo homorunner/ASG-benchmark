@@ -10,16 +10,10 @@ pub enum PuzzleError {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum PuzzleGoal {
-    FindBestMove,
-    Custom(String),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Puzzle {
     pub id: String,
     pub game_type: String,
-    pub goal: PuzzleGoal,
+    pub goal: String,
     pub description: String,
     pub game_states: Vec<String>,
     pub solutions: Vec<String>,
