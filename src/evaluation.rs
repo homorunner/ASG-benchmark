@@ -154,8 +154,11 @@ impl Solver {
                     if let Some(answer_line) =
                         response.lines().find(|line| line.starts_with("Answer:"))
                     {
-                        let answer = answer_line["Answer:".len()..].trim().to_string();
-                        println!("Got answer {}", answer);
+                        let answer = answer_line["Answer:".len()..]
+                            .trim()
+                            .to_lowercase()
+                            .to_string();
+                        println!("Got {}, expected {}", answer, puzzle.solutions[i]);
                         results.push(answer);
                     } else {
                         eprintln!(
