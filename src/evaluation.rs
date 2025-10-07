@@ -149,15 +149,13 @@ impl Solver {
                 .block_on(async { self.call_openai_api(&prompt).await })
             {
                 Ok(response) => {
-                    println!(
-                        "Puzzle {} state {}\nResponse: {}",
-                        puzzle.id, i, response
-                    );
+                    println!("Puzzle {} state {}\nResponse: {}", puzzle.id, i, response);
 
                     if let Some(answer_line) =
                         response.lines().find(|line| line.starts_with("Answer:"))
                     {
                         let answer = answer_line["Answer:".len()..].trim().to_string();
+                        println!("Got answer {}", answer);
                         results.push(answer);
                     } else {
                         eprintln!(
@@ -237,7 +235,7 @@ impl Solver {
 
         if let Some(choice) = response.choices.first() {
             if let Some(content) = &choice.message.content {
-                Ok(content.trim().to_string())
+                Ok(content.to_string())
             } else {
                 Err("No content in response".into())
             }
