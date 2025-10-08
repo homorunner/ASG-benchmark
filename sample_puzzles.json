@@ -13,6 +13,24 @@
       "solutions": [
         "a2e6"
       ]
+    },
+    {
+      "id": "chess_sample_02",
+      "game_type": "chess",
+      "description": "Example chess puzzle from https://www.youtube.com/watch?v=YtVsZg5gjTc",
+      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
+      "game_states": [
+        "2b5/4R3/5P2/5k2/5p1B/7P/ppp3P1/4K2R w K - 0 1",
+        "2b5/4R3/5P2/5k2/7B/6pP/ppp5/4K2R w K - 0 2",
+        "2b5/6R1/5P2/6Bk/8/6pP/ppp5/5RK1 w - - 6 5",
+        "2b5/5PR1/8/6Bk/8/6pP/1pp5/q4RK1 w - - 0 6"
+      ],
+      "solutions": [
+        "g2g4",
+        "e1g1",
+        "f6f7",
+        "f7f8q"
+      ]
     }
   ]
 }
