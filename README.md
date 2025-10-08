@@ -59,7 +59,7 @@ Puzzles are defined in JSON format with the following structure:
       "id": "puzzle_id",
       "game_type": "chess",
       "description": "Puzzle description",
-      "goal": {"FindBestMove": null},
+      "goal": "Puzzle goal",
       "game_states": ["fen_string_1", "fen_string_2"],
       "solutions": ["move1", "move2"]
     }
