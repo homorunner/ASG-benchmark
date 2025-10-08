@@ -1,6 +1,6 @@
-# BoardgameBench
+# Abstract Strategy Game Benchmark
 
-A Rust-based benchmark for evaluating LLM performance on abstract board game puzzles.
+A benchmark for evaluating LLM performance on abstract strategy game puzzles, currently focused on board games like chess.
 
 ## Overview
 
