@@ -19,14 +19,16 @@ BoardgameBench is designed to systematically evaluate how well Large Language Mo
 ```
 boardgamebench/
 ├── src/
-│   ├── main.rs          # CLI application entry point
+│   ├── benchmark        # Benchmark application entry point
+│   │   ├── main.rs
+│   ├── generate         # Puzzle generation utility
+│   │   ├── main.rs
 │   ├── lib.rs           # Core library functionality
 │   ├── game.rs          # Game definitions and rules
 │   ├── puzzle.rs        # Puzzle data structures
 │   └── evaluation.rs    # Benchmark runner and scoring logic
 ├── sample_puzzles.json  # Example puzzle collection
-├── Cargo.toml          # Rust project configuration
-└── CLAUDE.md           # Project specifications
+├── Cargo.toml           # Rust project configuration
 ```
 
 ## Quick Start
