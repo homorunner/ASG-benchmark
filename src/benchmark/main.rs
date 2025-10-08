@@ -1,7 +1,8 @@
 use anyhow::Result;
+use clap::Parser;
+
 use boardgamebench::evaluation::{BenchmarkRunner, Solver};
 use boardgamebench::puzzle::PuzzleCollection;
-use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

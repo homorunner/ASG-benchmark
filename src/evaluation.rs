@@ -1,3 +1,4 @@
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::env;
 
@@ -140,6 +141,7 @@ impl Solver {
 
     pub fn solve_puzzle(&self, puzzle: &Puzzle) -> Vec<String> {
         let mut results = Vec::new();
+        let regex = Regex::new(r"\*\*Answer:\s*(\S+?)\*\*").unwrap();
 
         for i in 0..puzzle.game_states.len() {
             let prompt = self.build_prompt(puzzle, i);
@@ -151,13 +153,11 @@ impl Solver {
                 Ok(response) => {
                     println!("Puzzle {} state {}\nResponse: {}", puzzle.id, i, response);
 
-                    if let Some(answer_line) =
-                        response.lines().find(|line| line.starts_with("Answer:"))
-                    {
-                        let answer = answer_line["Answer:".len()..]
-                            .trim()
-                            .to_lowercase()
-                            .to_string();
+                    if let Some(caps) = regex.captures_iter(&response).last() {
+                        let answer = caps
+                            .get(1)
+                            .map(|m| m.as_str().trim().to_lowercase())
+                            .unwrap();
                         println!("Got {}, expected {}", answer, puzzle.solutions[i]);
                         results.push(answer);
                     } else {
@@ -201,7 +201,7 @@ impl Solver {
 
     fn build_prompt(&self, puzzle: &Puzzle, index: usize) -> String {
         format!(
-            "你是一个解谜专家。请逐步分析并解决以下谜题，在单独的一行中以 “Answer: ...” 的格式给出你的答案。
+            "你是一个解谜专家。请逐步分析并解决以下谜题，在单独的一行中以 **Answer: ...** 的格式给出你的答案。
 谜题类型：{}
 谜题目标：{}
 棋盘状态：{}",
