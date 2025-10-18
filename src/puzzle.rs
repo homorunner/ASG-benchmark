@@ -9,26 +9,23 @@ pub enum PuzzleError {
     FileError(String),
 }
 
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PuzzleScore {
+    pub puzzle_id: String,
+    pub score: f64,
+    pub max_possible_score: f64,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Puzzle {
     pub id: String,
-    pub game_type: String,
-    pub goal: String,
     pub description: String,
     pub game_states: Vec<String>,
     pub solutions: Vec<String>,
 }
 
 impl Puzzle {
-    pub fn from_json(json_str: &str) -> Result<Self, PuzzleError> {
-        serde_json::from_str(json_str).map_err(|e| PuzzleError::InvalidDefinition(e.to_string()))
-    }
-
-    pub fn to_json(&self) -> Result<String, PuzzleError> {
-        serde_json::to_string_pretty(self)
-            .map_err(|e| PuzzleError::InvalidDefinition(e.to_string()))
-    }
-
     pub fn validate_solution(&self, results: &[String]) -> PuzzleScore {
         let mut score = 0.0;
         let n = self.game_states.len();
@@ -48,16 +45,11 @@ impl Puzzle {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PuzzleScore {
-    pub puzzle_id: String,
-    pub score: f64,
-    pub max_possible_score: f64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PuzzleCollection {
     pub name: String,
     pub description: String,
+    pub game_type: String,
+    pub goal: String,
     pub puzzles: Vec<Puzzle>,
 }
 
@@ -77,9 +69,10 @@ impl PuzzleCollection {
     }
 
     pub fn filter_by_game_type(&self, game_type: &str) -> Vec<&Puzzle> {
-        self.puzzles
-            .iter()
-            .filter(|puzzle| puzzle.game_type == game_type)
-            .collect()
+        if self.game_type == game_type {
+            self.puzzles.iter().collect()
+        } else {
+            Vec::new()
+        }
     }
 }

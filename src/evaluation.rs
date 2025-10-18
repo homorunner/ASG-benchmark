@@ -45,7 +45,7 @@ impl BenchmarkRunner {
             .puzzles
             .iter()
             .map(|puzzle| {
-                let solution = solver.solve_puzzle(puzzle);
+                let solution = solver.solve_puzzle(puzzle, &self.puzzles);
                 puzzle.validate_solution(&solution)
             })
             .collect();
@@ -63,19 +63,12 @@ impl BenchmarkRunner {
         let mut game_type_scores: std::collections::HashMap<String, (usize, f64, f64)> =
             std::collections::HashMap::new();
         for score in &puzzle_scores {
-            if let Some(puzzle) = self
-                .puzzles
-                .puzzles
-                .iter()
-                .find(|p| p.id == score.puzzle_id)
-            {
-                let entry = game_type_scores
-                    .entry(puzzle.game_type.clone())
-                    .or_insert((0, 0.0, 0.0));
-                entry.0 += 1;
-                entry.1 += score.score;
-                entry.2 += score.max_possible_score;
-            }
+            let entry = game_type_scores
+                .entry(self.puzzles.game_type.clone())
+                .or_insert((0, 0.0, 0.0));
+            entry.0 += 1;
+            entry.1 += score.score;
+            entry.2 += score.max_possible_score;
         }
 
         let game_type_breakdown: Vec<GameTypeScore> = game_type_scores
@@ -139,12 +132,12 @@ impl Solver {
         &self.description
     }
 
-    pub fn solve_puzzle(&self, puzzle: &Puzzle) -> Vec<String> {
+    pub fn solve_puzzle(&self, puzzle: &Puzzle, puzzle_collection: &PuzzleCollection) -> Vec<String> {
         let mut results = Vec::new();
         let regex = Regex::new(r"\*\*Answer:\s*(\S+?)\*\*").unwrap();
 
         for i in 0..puzzle.game_states.len() {
-            let prompt = self.build_prompt(puzzle, i);
+            let prompt = self.build_prompt(puzzle, puzzle_collection, i);
 
             match tokio::runtime::Runtime::new()
                 .expect("Failed to create tokio runtime")
@@ -199,15 +192,25 @@ impl Solver {
         })
     }
 
-    fn build_prompt(&self, puzzle: &Puzzle, index: usize) -> String {
+    fn build_prompt(&self, puzzle: &Puzzle, puzzle_collection: &PuzzleCollection, index: usize) -> String {
+        let game_type = &puzzle_collection.game_type;
+        let goal = &puzzle_collection.goal;
+        let fen = &puzzle.game_states[index];
         format!(
-            "你是一个解谜专家。请逐步分析并解决以下谜题，在单独的一行中以 **Answer: ...** 的格式给出你的答案。
-谜题类型：{}
-谜题目标：{}
-棋盘状态：{}",
-            puzzle.game_type,
-            puzzle.goal,
-            puzzle.game_states[index]
+            "You are a highly advanced AI specialized in solving abstract board game puzzles.
+Your task is to analyze the given game state and provide a detailed strategic evaluation along with the best possible move.
+Follow these guidelines to ensure optimal performance:
+1. **Understanding the Game Rules**: Begin by thoroughly explaining the rules of {game_type} in the context of the current puzzle. Highlight unique aspects like movement patterns of pieces, special moves, and endgame conditions.
+2. **Game State Analysis**: Assess the current state of the {game_type} board. Identify key factors such as:
+  - Material balance: Compare the pieces on both sides.
+  - Positioning: Evaluate the placement of pieces, control of the center, and potential threats.
+  - Tactical opportunities: Look for immediate tactical shots like forks, pins, or discovered attacks.
+  - Strategic considerations: Discuss long-term plans, weaknesses, and strengths of each side.
+3. **Best Move Recommendation**: Propose several moves based on your analysis. Think of possible responses from the opponent and how to counteract them. Choose the best move that maximizes your advantage or minimizes your losses.
+4. **Goal of the Puzzle**: Keep in mind that the primary objective is: {goal}. Tailor your analysis and move recommendations to align with this goal.
+5. **Formatting and Clarity**: Provide your final answer in the following format: **Answer: <your move here>**, where your move is represented in UCI notation, e.g., e2e4, e1g1 (castling), e7e8q (promotion). Ensure your response is separated from the analysis in one line for clarity.
+
+The puzzle is given by FEN string: {fen}",
         )
     }
 

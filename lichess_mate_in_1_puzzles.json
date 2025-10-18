@@ -1,125 +1,107 @@
 {
   "name": "Lichess Mate-in-1 Puzzles Collection",
   "description": "A collection of mate-in-1 chess puzzles extracted from Lichess database",
+  "game_type": "chess",
+  "goal": "Find the best move to win for current player in the given chess game.",
   "puzzles": [
     {
       "id": "chess_mate_in_1_01",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/PtFrSqKz#33",
+      "description": "Chess puzzle from https://lichess.org/Dlcsw6aV/black#78",
       "game_states": [
-        "3rk2N/p5pp/1pP5/4p3/QKBn1q2/2P5/PP1Pb1PP/RNB4R b - - 1 17"
+        "8/1r5p/2R5/1p1p1kp1/p4P2/4K1PP/PP6/8 w - - 0 40"
       ],
       "solutions": [
-        "f4f8"
+        "g3g4"
       ]
     },
     {
       "id": "chess_mate_in_1_02",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/JSCePhNf/black#64",
+      "description": "Chess puzzle from https://lichess.org/3TsH5RJK/black#36",
       "game_states": [
-        "r1b5/3n3R/2p2p2/p4P2/qp1P4/1k2P3/5PQ1/1NK5 w - - 0 33"
+        "r2k3r/pb1p1qpp/3Q1n2/8/2p2B2/2P5/P4PPP/R3R1K1 w - - 0 19"
       ],
       "solutions": [
-        "g2g8"
+        "d6c7"
       ]
     },
     {
       "id": "chess_mate_in_1_03",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/SrjDw8W7/black#84",
+      "description": "Chess puzzle from https://lichess.org/h9muV1QC/black#42",
       "game_states": [
-        "8/1p1qp3/p4krQ/3Ppp2/5P1P/N2RK2b/PPr4P/8 w - - 0 43"
+        "r6k/1p1bqp1B/pn2pp1B/8/7r/P5R1/1PQ2PPP/R5K1 w - - 5 22"
       ],
       "solutions": [
-        "h6f8"
+        "h6g7"
       ]
     },
     {
       "id": "chess_mate_in_1_04",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/IIQ3rEf7/black#36",
+      "description": "Chess puzzle from https://lichess.org/S4Z72FGq/black#22",
       "game_states": [
-        "r1b5/1p1p1r1k/p1n1ppRB/q6Q/Pbn1P3/2N5/1P3P1P/2R1K3 w - - 3 19"
+        "rnb1k2r/1pp1pNbp/p4np1/8/2B5/2N1B3/PPP1qPPP/2KR3R w kq - 0 12"
       ],
       "solutions": [
-        "h6g5"
+        "d1d8"
       ]
     },
     {
       "id": "chess_mate_in_1_05",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/DF37L8Ax/black#60",
+      "description": "Chess puzzle from https://lichess.org/3KVTdff6/black#16",
       "game_states": [
-        "8/pBP3q1/1pR1b3/3k1p2/3P2p1/P2KP1P1/r7/8 w - - 0 31"
+        "r1bq1b1r/pp2k1pp/n1pp1n2/6N1/2Q1P3/8/PPP2PPP/RNB1K2R w KQ - 3 9"
       ],
       "solutions": [
-        "c6b6"
+        "c4f7"
       ]
     },
     {
       "id": "chess_mate_in_1_06",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/tbWkqfC2#81",
+      "description": "Chess puzzle from https://lichess.org/WYs8rmFp/black#24",
       "game_states": [
-        "8/8/5k2/RB4p1/1P4K1/P4r2/4b3/8 b - - 2 41"
+        "r1bqkb1r/2p1np2/p1n5/1p1NP1p1/8/1B2PNP1/PPP3PP/R2QK2R w KQkq - 1 13"
       ],
       "solutions": [
-        "f3d3"
+        "d5f6"
       ]
     },
     {
       "id": "chess_mate_in_1_07",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/v2odoYgG/black#78",
+      "description": "Chess puzzle from https://lichess.org/JyzncGbh/black#48",
       "game_states": [
-        "r1r5/8/1R6/5k1p/1b1PpB2/7P/2p1K3/1q3R2 w - - 0 40"
+        "2kr3r/pp2b1p1/1n2ppp1/1N6/2P5/1q4BP/PP3PP1/3R1RK1 w - - 0 25"
       ],
       "solutions": [
-        "f4c1"
+        "b5a7"
       ]
     },
     {
       "id": "chess_mate_in_1_08",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/FEufXCCS#73",
+      "description": "Chess puzzle from https://lichess.org/pBEqqxhv#95",
       "game_states": [
-        "7b/4kp2/3Rp1p1/1b1pPPN1/5PKQ/q7/3B4/8 b - - 12 37"
+        "4Q3/1p4rk/p1p5/2Pp4/PP1P4/5Pq1/6P1/6RK b - - 6 48"
       ],
       "solutions": [
-        "e6f5"
+        "g3h4"
       ]
     },
     {
       "id": "chess_mate_in_1_09",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/ZUhyLToM#61",
+      "description": "Chess puzzle from https://lichess.org/AxO1Vfsu/black#46",
       "game_states": [
-        "8/5k1b/2P2p2/2P4P/1b5R/p1n3N1/P2K1PP1/R3r3 b - - 1 31"
+        "5r2/p1p1Pkpp/4Nnq1/8/b2n4/7P/PP3PP1/2K1R2R w - - 0 24"
       ],
       "solutions": [
-        "c3b1"
+        "e7f8q"
       ]
     },
     {
       "id": "chess_mate_in_1_10",
-      "game_type": "chess",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
-      "description": "Chess puzzle from https://lichess.org/ygNoi25e/black#66",
+      "description": "Chess puzzle from https://lichess.org/KJdzkcaj#67",
       "game_states": [
-        "qk1rr3/7p/5p2/QpR3p1/2n5/4P2P/1P3PP1/6K1 w - - 0 34"
+        "8/6pk/2p3qp/p7/3Q4/P2PnR1P/1PP3PK/8 b - - 0 34"
       ],
       "solutions": [
-        "a5c7"
+        "g6g2"
       ]
     }
   ]

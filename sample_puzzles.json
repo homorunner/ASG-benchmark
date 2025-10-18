@@ -1,24 +1,24 @@
 {
   "name": "Sample Chess Puzzles Collection",
-  "description": "A collection of sample chess puzzles for testing the BoardgameBench system",
+  "description": "A collection of sample chess puzzles",
+  "game_type": "chess",
+  "goal": "Find the best move to win for current player in the given chess game.",
   "puzzles": [
     {
       "id": "chess_sample_01",
-      "game_type": "chess",
-      "description": "Example chess puzzle from https://lichess.org/yyznGmXs/black#34",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
+      "description": "Example chess puzzle from https://lichess.org/PCpKhKqS#87",
       "game_states": [
-        "q5nr/1ppknQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 w - - 1 18"
+        "8/8/2k1PK2/7p/7P/p7/8/8 b - - 1 44",
+        "8/4P3/2k2K2/7p/7P/8/p7/8 b - - 0 45"
       ],
       "solutions": [
-        "a2e6"
+        "a3a2",
+        "a2a1q"
       ]
     },
     {
       "id": "chess_sample_02",
-      "game_type": "chess",
       "description": "Example chess puzzle from https://www.youtube.com/watch?v=YtVsZg5gjTc",
-      "goal": "按照标准国际象棋规则，当前局面下正在行棋的玩家走哪一步棋可以最快获胜？谜题保证答案是唯一的，请找到这一步棋，以UCI格式输出，例如b1c3、e1g1(白方短易位)、e7e8q(升变)。",
       "game_states": [
         "2b5/4R3/5P2/5k2/5p1B/7P/ppp3P1/4K2R w K - 0 1",
         "2b5/4R3/5P2/5k2/7B/6pP/ppp5/4K2R w K - 0 2",
