@@ -2,11 +2,13 @@ use shakmaty::fen::Fen;
 use shakmaty::uci::UciMove;
 use shakmaty::*;
 use std::error::Error;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Write};
+use std::path::Path;
+use rand::prelude::*;
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
-use rand::seq::SliceRandom;
+use image::open;
 
 use boardgamebench::puzzle::{Puzzle, PuzzleCollection};
 
@@ -108,6 +110,127 @@ fn generate_puzzles_from_data(
     Ok(puzzles)
 }
 
+fn load_board_themes() -> Result<Vec<String>, Box<dyn Error>> {
+    let board_dir = Path::new("images/chess/board");
+    let mut themes = Vec::new();
+
+    if board_dir.exists() && board_dir.is_dir() {
+        for entry in fs::read_dir(board_dir)? {
+            let entry = entry?;
+            let path = entry.path();
+
+            if path.is_file() && path.extension().map_or(false, |ext| ext == "png") {
+                if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
+                    themes.push(stem.to_string());
+                }
+            }
+        }
+    }
+
+    println!("Loaded {} board themes: {:?}", themes.len(), themes);
+    Ok(themes)
+}
+
+fn load_piece_styles() -> Result<Vec<String>, Box<dyn Error>> {
+    let pieces_dir = Path::new("images/chess/pieces");
+    let mut styles = Vec::new();
+
+    if pieces_dir.exists() && pieces_dir.is_dir() {
+        for entry in fs::read_dir(pieces_dir)? {
+            let entry = entry?;
+            let path = entry.path();
+
+            if path.is_dir() {
+                if let Some(style_name) = path.file_name().and_then(|s| s.to_str()) {
+                    styles.push(style_name.to_string());
+                }
+            }
+        }
+    }
+
+    println!("Loaded {} piece styles: {:?}", styles.len(), styles);
+    Ok(styles)
+}
+
+/// Generate a chess board image from FEN notation using random board and piece themes
+fn generate_board_image_from_fen(
+    fen: &str,
+    output_path: &str,
+    seed: u64,
+) -> Result<(), Box<dyn Error>> {
+    let mut rng = SmallRng::seed_from_u64(seed);
+
+    let board_themes = load_board_themes()?;
+    if board_themes.is_empty() {
+        return Err("No board themes found in images/chess/board/".into());
+    }
+
+    let piece_styles = load_piece_styles()?;
+    if piece_styles.is_empty() {
+        return Err("No piece styles found in images/chess/pieces/".into());
+    }
+
+    // Randomly select board theme and piece style
+    let board_theme = board_themes.choose(&mut rng).unwrap();
+    let piece_style = piece_styles.choose(&mut rng).unwrap();
+
+    println!("Generating board image with theme '{}' and piece style '{}'", board_theme, piece_style);
+
+    let board_path = format!("images/chess/board/{}.png", board_theme);
+    let mut board_image = open(&board_path)?;
+
+    let pos = Chess::from_setup(
+        Setup::from(Fen::from_ascii(fen.as_bytes())?),
+        CastlingMode::Standard,
+    )?;
+
+    let board = pos.board();
+
+    let square_size = 150;
+    let board_offset_x = 0;
+    let board_offset_y = 0;
+    
+    board_image = board_image.resize(
+        square_size * 8 + board_offset_x * 2,
+        square_size * 8 + board_offset_y * 2,
+        image::imageops::FilterType::Gaussian);
+
+    for rank in 0..8 {
+        for file in 0..8 {
+            let square = Square::from_coords(shakmaty::File::new(file), shakmaty::Rank::new(7 - rank)); // Convert to chess coordinates (a1 is bottom-left)
+            if let Some(piece) = board.piece_at(square) {
+                let piece_code = match (piece.color, piece.role) {
+                    (Color::White, Role::Pawn) => "wp",
+                    (Color::White, Role::Knight) => "wn",
+                    (Color::White, Role::Bishop) => "wb",
+                    (Color::White, Role::Rook) => "wr",
+                    (Color::White, Role::Queen) => "wq",
+                    (Color::White, Role::King) => "wk",
+                    (Color::Black, Role::Pawn) => "bp",
+                    (Color::Black, Role::Knight) => "bn",
+                    (Color::Black, Role::Bishop) => "bb",
+                    (Color::Black, Role::Rook) => "br",
+                    (Color::Black, Role::Queen) => "bq",
+                    (Color::Black, Role::King) => "bk",
+                };
+
+                let piece_path = format!("images/chess/pieces/{}/{}.png", piece_style, piece_code);
+                let piece_image = open(&piece_path)?;
+
+                let x = board_offset_x + (file as u32) * square_size;
+                let y = board_offset_y + (rank as u32) * square_size;
+
+                image::imageops::overlay(&mut board_image, &piece_image, x as i64, y as i64);
+            }
+        }
+    }
+
+    board_image.save(output_path)?;
+    println!("Board image saved to: {}", output_path);
+
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     // Read the puzzle database
     let all_puzzles = read_puzzle_database("database/lichess_db_puzzle.csv")?;
@@ -158,6 +281,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Successfully generated lichess_multi_type_puzzles.json");
     println!("Generated {} puzzles", collection.puzzles.len());
+
+    // Test the board image generation function
+    println!("\nTesting board image generation...");
+    let test_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Standard starting position
+    let output_path = "output/images/test_board.png";
+    generate_board_image_from_fen(test_fen, output_path, 12345)?;
+    println!("Test board image generated successfully!");
 
     Ok(())
 }
