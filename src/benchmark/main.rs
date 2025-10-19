@@ -14,6 +14,10 @@ struct Args {
     /// Puzzle file to load
     #[arg(short, long, default_value = "sample_puzzles.json")]
     puzzle_file: String,
+
+    /// Number of threads for parallel evaluation
+    #[arg(short, long, default_value = "16")]
+    threads: usize,
 }
 
 fn main() -> Result<()> {
@@ -30,7 +34,21 @@ fn main() -> Result<()> {
     let solver: Box<boardgamebench::evaluation::Solver> = {
         println!("Using Solver with model: {}", args.model);
         match Solver::new(args.model) {
-            Ok(solver) => Box::new(solver),
+            Ok(solver) => {
+                // Test API reachability before running benchmark
+                println!("Testing API reachability...");
+                match solver.test_api_reachability() {
+                    Ok(response) => {
+                        println!("API test successful. Response: {}", response);
+                        Box::new(solver)
+                    }
+                    Err(e) => {
+                        eprintln!("API test failed: {}", e);
+                        eprintln!("Please check your OPENAI_API_KEY and OPENAI_BASE_URL environment variables.");
+                        return Err(anyhow::anyhow!("API reachability test failed: {}", e));
+                    }
+                }
+            }
             Err(e) => {
                 eprintln!("Failed to create solver: {}", e);
                 return Err(anyhow::anyhow!("Failed to create solver: {}", e));
@@ -38,8 +56,9 @@ fn main() -> Result<()> {
         }
     };
 
+    println!("Using {} threads for parallel evaluation", args.threads);
     let runner = BenchmarkRunner::new(puzzles);
-    let results = runner.run_benchmark(solver.as_ref());
+    let results = runner.run_benchmark_parallel(solver.as_ref(), args.threads);
 
     println!("\nBenchmark Results:");
     println!("Benchmark: {}", results.benchmark_name);

@@ -153,6 +153,7 @@ dependencies = [
  "dotenvy",
  "openai-api-rs",
  "rand",
+ "rayon",
  "regex",
  "serde",
  "serde_json",

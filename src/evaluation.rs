@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -98,6 +99,71 @@ impl BenchmarkRunner {
         }
     }
 
+    pub fn run_benchmark_parallel(&self, solver: &Solver, num_threads: usize) -> BenchmarkResult {
+        // Set the thread pool size for rayon
+        rayon::ThreadPoolBuilder::new()
+            .num_threads(num_threads)
+            .build_global()
+            .expect("Failed to build thread pool");
+
+        let puzzle_scores: Vec<PuzzleScore> = self
+            .puzzles
+            .puzzles
+            .par_iter()
+            .map(|puzzle| {
+                let solution = solver.solve_puzzle(puzzle, &self.puzzles);
+                puzzle.validate_solution(&solution)
+            })
+            .collect();
+
+        let total_score: f64 = puzzle_scores.iter().map(|s| s.score).sum();
+        let max_possible_score: f64 = puzzle_scores.iter().map(|s| s.max_possible_score).sum();
+        let total_puzzles = puzzle_scores.len();
+        let average_score = if max_possible_score > 0.0 {
+            total_score / max_possible_score
+        } else {
+            0.0
+        };
+
+        // Calculate game type breakdown
+        let mut game_type_scores: std::collections::HashMap<String, (usize, f64, f64)> =
+            std::collections::HashMap::new();
+        for score in &puzzle_scores {
+            let entry = game_type_scores
+                .entry(self.puzzles.game_type.clone())
+                .or_insert((0, 0.0, 0.0));
+            entry.0 += 1;
+            entry.1 += score.score;
+            entry.2 += score.max_possible_score;
+        }
+
+        let game_type_breakdown: Vec<GameTypeScore> = game_type_scores
+            .into_iter()
+            .map(|(game_type, (count, score, total_score))| GameTypeScore {
+                game_type,
+                count,
+                average_score: if total_score > 0.0 {
+                    score / total_score as f64
+                } else {
+                    0.0
+                },
+            })
+            .collect();
+
+        BenchmarkResult {
+            benchmark_name: format!("{} on {} (parallel)", solver.name(), self.puzzles.name),
+            solver_name: solver.name().to_string(),
+            solver_description: solver.description().to_string(),
+            total_puzzles,
+            total_score,
+            max_possible_score,
+            average_score,
+            puzzle_scores,
+            game_type_breakdown,
+            timestamp: chrono::Utc::now().to_rfc3339(),
+        }
+    }
+
     pub fn export_results(
         &self,
         results: &BenchmarkResult,
@@ -130,6 +196,18 @@ impl Solver {
 
     pub fn description(&self) -> &str {
         &self.description
+    }
+
+    pub fn test_api_reachability(&self) -> Result<String, Box<dyn std::error::Error>> {
+        let prompt = "Please respond with the single word 'hello' to me.";
+
+        match tokio::runtime::Runtime::new()
+            .expect("Failed to create tokio runtime")
+            .block_on(async { self.call_openai_api(prompt).await })
+        {
+            Ok(response) => Ok(response),
+            Err(e) => Err(e),
+        }
     }
 
     pub fn solve_puzzle(&self, puzzle: &Puzzle, puzzle_collection: &PuzzleCollection) -> Vec<String> {
