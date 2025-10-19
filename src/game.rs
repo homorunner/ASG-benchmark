@@ -10,11 +10,8 @@ pub enum GameError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Game {
     pub game_type: String,
-
     pub rules: String,
-
     pub board_representation: String,
-
     pub move_representation: String,
 }
 
