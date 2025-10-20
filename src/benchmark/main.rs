@@ -18,6 +18,10 @@ struct Args {
     /// Number of threads for parallel evaluation
     #[arg(short, long, default_value = "16")]
     threads: usize,
+
+    /// Number of passes to run for each test case
+    #[arg(short = 'N', long, default_value = "1")]
+    passes: usize,
 }
 
 fn main() -> Result<()> {
@@ -57,8 +61,14 @@ fn main() -> Result<()> {
     };
 
     println!("Using {} threads for parallel evaluation", args.threads);
+    println!("Running {} passes for each test case", args.passes);
     let runner = BenchmarkRunner::new(puzzles);
-    let results = runner.run_benchmark_parallel(solver.as_ref(), args.threads);
+
+    let results = if args.passes > 1 {
+        runner.run_benchmark_multiple_passes(solver.as_ref(), args.threads, args.passes)
+    } else {
+        runner.run_benchmark_parallel(solver.as_ref(), args.threads)
+    };
 
     println!("\nBenchmark Results:");
     println!("Benchmark: {}", results.benchmark_name);
@@ -72,6 +82,15 @@ fn main() -> Result<()> {
         results.total_score, results.max_possible_score
     );
     println!("Scoring average: {:.2}%", results.average_score * 100.0);
+
+    // Display pass@1 and pass@n results if multiple passes were run
+    if args.passes > 1 {
+        if let Some(pass_results) = &results.pass_results {
+            println!("\nResults:");
+            println!("  Pass@1: {:.2}%", pass_results.pass_at_1 * 100.0);
+            println!("  Pass@{}: {:.2}%", args.passes, pass_results.pass_at_n * 100.0);
+        }
+    }
 
     println!("\nGame Type Breakdown:");
     for game_type in &results.game_type_breakdown {

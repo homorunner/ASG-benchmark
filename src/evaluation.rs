@@ -6,6 +6,13 @@ use std::env;
 use crate::puzzle::{Puzzle, PuzzleCollection, PuzzleScore};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PassResults {
+    pub pass_at_1: f64,
+    pub pass_at_n: f64,
+    pub individual_pass_scores: Vec<Vec<PuzzleScore>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BenchmarkResult {
     pub benchmark_name: String,
     pub solver_name: String,
@@ -17,6 +24,7 @@ pub struct BenchmarkResult {
     pub puzzle_scores: Vec<PuzzleScore>,
     pub game_type_breakdown: Vec<GameTypeScore>,
     pub timestamp: String,
+    pub pass_results: Option<PassResults>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -96,6 +104,7 @@ impl BenchmarkRunner {
             puzzle_scores,
             game_type_breakdown,
             timestamp: chrono::Utc::now().to_rfc3339(),
+            pass_results: None,
         }
     }
 
@@ -161,6 +170,7 @@ impl BenchmarkRunner {
             puzzle_scores,
             game_type_breakdown,
             timestamp: chrono::Utc::now().to_rfc3339(),
+            pass_results: None,
         }
     }
 
@@ -179,6 +189,149 @@ impl BenchmarkRunner {
             .iter()
             .map(|solver| self.run_benchmark(*solver))
             .collect()
+    }
+
+    pub fn run_benchmark_multiple_passes(
+        &self,
+        solver: &Solver,
+        num_threads: usize,
+        num_passes: usize,
+    ) -> BenchmarkResult {
+        // Set the thread pool size for rayon
+        rayon::ThreadPoolBuilder::new()
+            .num_threads(num_threads)
+            .build_global()
+            .expect("Failed to build thread pool");
+
+        println!("Running {} passes for each puzzle...", num_passes);
+
+        // Run multiple passes in parallel
+        let all_pass_scores: Vec<Vec<PuzzleScore>> = (0..num_passes)
+            .into_par_iter()
+            .map(|pass| {
+                println!("Starting pass {}...", pass + 1);
+                let puzzle_scores: Vec<PuzzleScore> = self
+                    .puzzles
+                    .puzzles
+                    .par_iter()
+                    .map(|puzzle| {
+                        let solution = solver.solve_puzzle(puzzle, &self.puzzles);
+                        puzzle.validate_solution(&solution)
+                    })
+                    .collect();
+                puzzle_scores
+            })
+            .collect();
+
+        // Calculate pass@1 and pass@n
+        let pass_at_1 = Self::calculate_pass_rate(&all_pass_scores, 1);
+        let pass_at_n = Self::calculate_pass_rate(&all_pass_scores, num_passes);
+
+        // Calculate aggregate scores across all passes
+        let aggregate_scores = Self::aggregate_scores(&all_pass_scores);
+
+        let total_score: f64 = aggregate_scores.iter().map(|s| s.score).sum();
+        let max_possible_score: f64 = aggregate_scores.iter().map(|s| s.max_possible_score).sum();
+        let total_puzzles = aggregate_scores.len();
+        let average_score = if max_possible_score > 0.0 {
+            total_score / max_possible_score
+        } else {
+            0.0
+        };
+
+        // Calculate game type breakdown
+        let mut game_type_scores: std::collections::HashMap<String, (usize, f64, f64)> =
+            std::collections::HashMap::new();
+        for score in &aggregate_scores {
+            let entry = game_type_scores
+                .entry(self.puzzles.game_type.clone())
+                .or_insert((0, 0.0, 0.0));
+            entry.0 += 1;
+            entry.1 += score.score;
+            entry.2 += score.max_possible_score;
+        }
+
+        let game_type_breakdown: Vec<GameTypeScore> = game_type_scores
+            .into_iter()
+            .map(|(game_type, (count, score, total_score))| GameTypeScore {
+                game_type,
+                count,
+                average_score: if total_score > 0.0 {
+                    score / total_score as f64
+                } else {
+                    0.0
+                },
+            })
+            .collect();
+
+        BenchmarkResult {
+            benchmark_name: format!(
+                "{} on {} ({} passes)",
+                solver.name(),
+                self.puzzles.name,
+                num_passes
+            ),
+            solver_name: solver.name().to_string(),
+            solver_description: solver.description().to_string(),
+            total_puzzles,
+            total_score,
+            max_possible_score,
+            average_score,
+            puzzle_scores: aggregate_scores,
+            game_type_breakdown,
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            pass_results: Some(PassResults {
+                pass_at_1,
+                pass_at_n,
+                individual_pass_scores: all_pass_scores,
+            }),
+        }
+    }
+
+    fn calculate_pass_rate(all_pass_scores: &[Vec<PuzzleScore>], k: usize) -> f64 {
+        let num_puzzles = all_pass_scores[0].len();
+        let mut passed_count = 0;
+
+        for puzzle_idx in 0..num_puzzles {
+            let mut max_score = 0.0;
+            for pass_scores in all_pass_scores.iter().take(k) {
+                let score = pass_scores[puzzle_idx].score;
+                let max_possible = pass_scores[puzzle_idx].max_possible_score;
+                if score == max_possible {
+                    max_score = max_possible;
+                    break;
+                }
+            }
+            if max_score > 0.0 {
+                passed_count += 1;
+            }
+        }
+
+        passed_count as f64 / num_puzzles as f64
+    }
+
+    fn aggregate_scores(all_pass_scores: &[Vec<PuzzleScore>]) -> Vec<PuzzleScore> {
+        let num_puzzles = all_pass_scores[0].len();
+        let mut aggregated = Vec::with_capacity(num_puzzles);
+
+        for puzzle_idx in 0..num_puzzles {
+            let mut score = 0.0;
+            let mut max_possible_score = 0.0;
+            let puzzle_id = all_pass_scores[0][puzzle_idx].puzzle_id.clone();
+
+            for pass_scores in all_pass_scores {
+                score += pass_scores[puzzle_idx].score;
+                max_possible_score += pass_scores[puzzle_idx].max_possible_score;
+            }
+
+            aggregated.push(PuzzleScore {
+                puzzle_id,
+                score,
+                max_possible_score,
+            });
+        }
+
+        aggregated
     }
 }
 
