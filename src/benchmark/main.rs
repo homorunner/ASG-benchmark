@@ -12,7 +12,7 @@ struct Args {
     model: String,
 
     /// Puzzle file to load
-    #[arg(short, long, default_value = "sample_puzzles.json")]
+    #[arg(short, long, default_value = "data/sample_puzzles.json")]
     puzzle_file: String,
 
     /// Number of threads for parallel evaluation
