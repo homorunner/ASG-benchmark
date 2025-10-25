@@ -238,10 +238,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Define puzzle types and their criteria
     let puzzle_types = vec![
-        ("mateIn1", (1000.0, 1500.0)),
         ("opening", (1200.0, 1800.0)),
-        ("middlegame", (1400.0, 2000.0)),
-        ("endgame", (1600.0, 2200.0)),
+        ("middlegame", (1200.0, 1500.0)),
+        ("endgame", (1200.0, 1800.0)),
+        ("defensiveMove", (1200.0, 1500.0)),
+        ("quietMove", (1200.0, 1500.0)),
     ];
 
     let mut all_generated_puzzles = Vec::new();
@@ -254,14 +255,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             &all_puzzles,
             theme,
             99.0,  // min_popularity
-            500.0, // min_plays
+            1000.0, // min_plays
             rating_range,
         );
 
         println!("Found {} {} puzzles", filtered_puzzles.len(), theme);
 
         // Generate 10 puzzles for this type
-        let puzzles = generate_puzzles_from_data(&filtered_puzzles, theme, 10, 3407)?;
+        let puzzles = generate_puzzles_from_data(&filtered_puzzles, theme, 20, 3407)?;
         all_generated_puzzles.extend(puzzles);
     }
 
