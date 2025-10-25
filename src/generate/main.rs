@@ -272,6 +272,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         description: "A collection of chess puzzles including mate-in-1, opening, middlegame, and endgame positions extracted from Lichess database".to_string(),
         game_type: "chess".to_string(),
         goal: "Find the best move to win for current player in the given chess game.".to_string(),
+        game_rule: "".to_string(),
         puzzles: all_generated_puzzles,
     };
 

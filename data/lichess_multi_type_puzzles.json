@@ -3,6 +3,7 @@
   "description": "A collection of chess puzzles including mate-in-1, opening, middlegame, and endgame positions extracted from Lichess database",
   "game_type": "chess",
   "goal": "Find the best move to win for current player in the given chess game.",
+  "game_rule": "",
   "puzzles": [
     {
       "id": "chess_opening_01",

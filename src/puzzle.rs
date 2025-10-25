@@ -50,6 +50,7 @@ pub struct PuzzleCollection {
     pub description: String,
     pub game_type: String,
     pub goal: String,
+    pub game_rule: String,
     pub puzzles: Vec<Puzzle>,
 }
 

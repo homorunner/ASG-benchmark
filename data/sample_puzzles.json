@@ -3,6 +3,7 @@
   "description": "A collection of sample chess puzzles",
   "game_type": "chess",
   "goal": "Find the best move to win for current player in the given chess game.",
+  "game_rule": "",
   "puzzles": [
     {
       "id": "chess_sample_01",

@@ -2,6 +2,7 @@ use rayon::prelude::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::env;
+use std::time::Instant;
 
 use crate::puzzle::{Puzzle, PuzzleCollection, PuzzleScore};
 
@@ -375,14 +376,12 @@ impl Solver {
                 .block_on(async { self.call_openai_api(&prompt).await })
             {
                 Ok(response) => {
-                    println!("Puzzle {} state {}\nResponse: {}", puzzle.id, i, response);
-
                     if let Some(caps) = regex.captures_iter(&response).last() {
                         let answer = caps
                             .get(1)
                             .map(|m| m.as_str().trim().to_lowercase())
                             .unwrap();
-                        println!("Got {}, expected {}", answer, puzzle.solutions[i]);
+                        println!("Puzzle {} state {} Got {}, expected {}", puzzle.id, i, answer, puzzle.solutions[i]);
                         results.push(answer);
                     } else {
                         eprintln!(
@@ -468,7 +467,13 @@ The puzzle is given by FEN string: {fen}",
             functions: None,
         };
 
+        let start = Instant::now();
+        println!("call_openai_api(): starting at {}ms... ", start.elapsed().as_millis());
+
         let response = self.client.chat_completion(request).await?;
+        let duration = start.elapsed();
+
+        println!("call_openai_api(): prompt_len={}, completion_len={}, duration={}ms", response.usage.prompt_tokens, response.usage.completion_tokens, duration.as_millis());
 
         if let Some(choice) = response.choices.first() {
             if let Some(content) = &choice.message.content {
